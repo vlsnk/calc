@@ -1,5 +1,7 @@
 package com.jcourse.vlsnk.command;
 
+import com.jcourse.vlsnk.exception.NoDefinitionExcetpion;
+
 import java.util.Map;
 import java.util.Stack;
 
@@ -15,10 +17,16 @@ public class Push extends Command {
         this.var = s;
     }
 
-    public void execute() {
+    public void execute() throws NoDefinitionExcetpion {
+        Double d = null;
         if (vars.containsKey(var)) {
-            Double d = super.vars.get(var);
-            stack.push(d);
+            d = super.vars.get(var);
+        } else {
+            d = Double.valueOf(var);
         }
+        if (d == null) {
+            throw  new NoDefinitionExcetpion("No such variable in DEFINITIONS " + this.var);
+        }
+        stack.push(d);
     }
 }

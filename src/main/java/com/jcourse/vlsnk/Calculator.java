@@ -1,12 +1,17 @@
 package com.jcourse.vlsnk;
 
 import com.jcourse.vlsnk.command.*;
+import com.jcourse.vlsnk.exception.CalculatorException;
+import com.jcourse.vlsnk.exception.WrongCommand;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
 
 public class Calculator {
     private static final String DEFINE = "DEFINE";
@@ -22,13 +27,12 @@ public class Calculator {
     protected Stack<Double> stack = new Stack<Double>();
     protected Map<String, Double> definitions = new HashMap<String, Double>();
     protected String[] args;
-    protected List<Command> commandList = new LinkedList<Command>();
 
-    public void addCommand(String s) {
+    public void addCommand(String s) throws CalculatorException {
+
         args = s.split(" ");
-        Command c = null;
-
         if (args.length==0) return;
+        Command c = null;
 
         String type = args[0];
         switch (type) {
@@ -72,27 +76,22 @@ public class Calculator {
                 break;
             }
         }
-        if (c != null) commandList.add(c);
-        if (c != null) c.execute();
+        if (c != null) {
+            c.execute();
+        } else throw new WrongCommand("Wrong command");
     }
 
-    public void addFile(String s) {
-        List<String> lines = null;
-        try {
-            lines = Files.readAllLines(Paths.get(s), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for(String line: lines){
-            addCommand(line);
+    public void addFile(String s) throws CalculatorException {
+
+        InputStream stream = Calculator.class.getClassLoader().getResourceAsStream(s);
+        Scanner in = new Scanner(stream);
+        while (in.hasNextLine()) {
+            addCommand(in.nextLine());
         }
     }
 
     void clear(){
-
-        commandList.clear();
         stack.clear();
         definitions.clear();
-
     }
 }

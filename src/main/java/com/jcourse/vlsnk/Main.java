@@ -1,5 +1,12 @@
 package com.jcourse.vlsnk;
 
+import com.jcourse.vlsnk.exception.*;
+import com.sun.org.apache.xpath.internal.functions.WrongNumberArgsException;
+import jdk.nashorn.internal.runtime.Context;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,20 +21,36 @@ public class Main {
         for (;;) {
             String s = in.nextLine();
             if (s.equalsIgnoreCase("EXIT")) break;
-            if (getFile(s)) {
-                calculator.addFile(s);
-            } else {
-                calculator.addCommand(s);
-                if (s.startsWith("PRINT")) {
-                    calculator.clear();
+            try {
+                if (getFile(s)) {
+                    calculator.addFile(s);
+                } else {
+                    calculator.addCommand(s);
+                    if (s.startsWith("PRINT")) {
+                        calculator.clear();
+                    }
                 }
+            } catch (NoDefinitionExcetpion | StackCalcException | WrongArguments noDefinitionExcetpion) {
+                System.out.println(noDefinitionExcetpion.getMessage());
+            } catch (CalculatorException c) {
+                c.printStackTrace();
             }
         }
     }
 
     static boolean getFile(String name){
-        Path path = Paths.get(name);
-        return Files.exists(path) ? true : false;
+        try {
+//            File file = new File(Context.getContext().toString(), name);
+//            if (file != null) {
+//                return true;
+//            }
+            Path path = Paths.get("D:\\Idea Projects\\calc\\src\\main\\resources\\" + name);
+            return Files.exists(path) ? true : false;
+
+        } catch (Exception e) {
+            return false;
+        }
+//        return false;
     }
 
 }
